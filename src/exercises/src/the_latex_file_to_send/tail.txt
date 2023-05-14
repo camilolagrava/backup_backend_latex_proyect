@@ -1,0 +1,3 @@
+Mi primer documento en \LaTeX{}.
+
+\end{document}
