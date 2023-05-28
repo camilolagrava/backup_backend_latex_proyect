@@ -3,6 +3,7 @@ import { ExercisesController } from './exercises.controller';
 import { ExercisesService } from './exercises.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ExerciseSchema } from './schemas/exercise.schema';
+import { JwtStrategy } from 'src/auth/jwt.strategies/jwt.strategy';
 
 @Module({
   imports: [
@@ -11,7 +12,7 @@ import { ExerciseSchema } from './schemas/exercise.schema';
     ])
   ],
   controllers: [ExercisesController],
-  providers: [ExercisesService]
+  providers: [ExercisesService, JwtStrategy]
 })
 export class ExercisesModule {}
 

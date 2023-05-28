@@ -1,11 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 
 import { Model } from 'mongoose'
 import { InjectModel } from '@nestjs/mongoose';
 import { ExerciseInterface } from './interfaces/exercise.interface';
 import { ExerciseDTO } from './dto/exercise.dto';
 import { ExerciseFindDTO } from './dto/exercise.find.dto';
-import { ExerciseListFindDTO } from './dto/exercises.list.find';
 
 @Injectable()
 export class ExercisesService {
@@ -19,6 +18,7 @@ export class ExercisesService {
 
     async getExerciseById(exerciseId: string): Promise<ExerciseInterface>{
         const exercise = await this.exerciseModel.findById(exerciseId)
+        if(!exercise) throw new HttpException('EXERCISE_NO_FOUND', 404)
         return exercise
     }
 
@@ -29,17 +29,20 @@ export class ExercisesService {
 
     async deleteExerciseById(exerciseId: string): Promise<ExerciseInterface>{
         const deletedExercise =  await this.exerciseModel.findByIdAndDelete(exerciseId)
+        if(!deletedExercise) throw new HttpException('EXERCISE_NO_FOUND', 404)
         return deletedExercise
     }
 
     async upDateExerciseById(exerciseId: string, exerciseDTO : ExerciseDTO):  Promise<ExerciseInterface>{
         const updatedExercise = await this.exerciseModel.findByIdAndUpdate(exerciseId,exerciseDTO, {new : true})
+        if(!updatedExercise) throw new HttpException('EXERCISE_NO_FOUND', 404)
         return updatedExercise
     }
 
     //funca, pero no se los limites
     async getExercisesByJson(exerciseDTO: ExerciseFindDTO): Promise<ExerciseInterface[]>{
         const exercises =  await  this.exerciseModel.find(exerciseDTO);
+        if(!exercises) throw new HttpException('EXERCISE_NO_FOUND', 404)
         return  exercises
     }
 
