@@ -23,8 +23,14 @@ export class ExercisesService {
     }
 
     async addExercise(exerciseDTO : ExerciseDTO ): Promise<ExerciseInterface>{
-        const newProduct = new this.exerciseModel(exerciseDTO)
-        return newProduct.save();
+        const exercise = await this.exerciseModel.findOne({problem: exerciseDTO.problem})
+        if(!exercise){
+            const newProduct = new this.exerciseModel(exerciseDTO)
+            return newProduct.save();
+        }else{
+            throw new HttpException('THIS_EXERCISE_IS_IN_THE_DATABASE_ALLREADY', 404)
+        }
+        
     }
 
     async deleteExerciseById(exerciseId: string): Promise<ExerciseInterface>{
@@ -33,8 +39,9 @@ export class ExercisesService {
         return deletedExercise
     }
 
+    //varios errores de disenno
     async upDateExerciseById(exerciseId: string, exerciseDTO : ExerciseDTO):  Promise<ExerciseInterface>{
-        const updatedExercise = await this.exerciseModel.findByIdAndUpdate(exerciseId,exerciseDTO, {new : true})
+        const updatedExercise = await this.exerciseModel.findByIdAndUpdate(exerciseId,exerciseDTO, { new: true})
         if(!updatedExercise) throw new HttpException('EXERCISE_NO_FOUND', 404)
         return updatedExercise
     }

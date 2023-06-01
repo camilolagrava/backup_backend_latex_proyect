@@ -16,15 +16,13 @@ export class AuthService {
 
   async registerUser(userDTO : RegisteUserDTO ): Promise<UserInterface>{
       const { password } = userDTO
-      /*if(await this.userEmailexist({username, email})){
-          //todo exeption con mensaje
+      if(await this.userModel.findOne({email: userDTO.email})){
+        throw new HttpException('THIS_EMAIL_IS_IN_USE', 403)
+      }else{
+        const passhash = await hash(password,10)
+        userDTO = {...userDTO, password:passhash}
+        return this.userModel.create(userDTO)
       }
-          //todo encriptar el password*/
-      const passhash = await hash(password,10)
-      userDTO = {...userDTO, password:passhash}
-      //const newUser = new this.userModel(userDTO)
-      //return newUser.save();
-      return this.userModel.create(userDTO)
   }
 
   async login(userDTO: LoginUserDTO){
@@ -44,8 +42,7 @@ export class AuthService {
         user,
         token
       }
-
+      
       return data
-
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete , Res, Body ,HttpStatus, Param, NotFoundException, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete , Res, Body ,HttpStatus, Param, NotFoundException, Query, UseGuards, HttpException } from '@nestjs/common';
 
 import { ExerciseDTO } from './dto/exercise.dto';
 import { ExerciseFindDTO } from './dto/exercise.find.dto';
@@ -14,6 +14,7 @@ import { JwtAuthGuard } from 'src/auth/jwt.guards/jwt.auth-guard';
 @Controller('exercises')
 export class ExercisesController {
 
+    private pdfReady = false
     constructor(private exercisesService : ExercisesService){}
 
     @UseGuards(JwtAuthGuard)
@@ -29,7 +30,7 @@ export class ExercisesController {
     @Get('/')
     async allExercises(@Res() res){
         const exercises =  await this.exercisesService.getAllExercises();
-        res.status(HttpStatus.OK).json({
+       res.status(HttpStatus.OK).json({
             exercises
         })
     }
@@ -96,8 +97,8 @@ export class ExercisesController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @Post('/sentPdf')
-    async sentPdf(@Res() res, @Body() exerciseListFindDTO : ExerciseListFindDTO)/*: Promise<Observable<Object>>*/{
+    @Post('/createPdf')
+    async createPdf(@Res() res, @Body() exerciseListFindDTO : ExerciseListFindDTO){
         const exercises = []
         for (let i = 0; i < exerciseListFindDTO.ids.length; i++) {
             const exercise = await this.exercisesService.getExerciseById(exerciseListFindDTO.ids[i])
@@ -105,9 +106,29 @@ export class ExercisesController {
         }
         const latex = new LatexCreator
         await latex.textBuild(exercises)
-        await latex.latexToPdf()
-
-        res.status(HttpStatus.OK).sendFile(join(process.cwd(),'/src/exercises/src/the_latex_file_to_send/pdf/exercices.pdf'))
+        await latex.createPdf()
+        this.pdfReady = true
+        res.status(HttpStatus.OK).json({
+            message: 'the pdf was created, now you can downland'
+        })
+        
     }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('/downloadPdf')
+    async downloadPdf(@Res() res){
+        if(this.pdfReady){
+            res.status(HttpStatus.OK).sendFile(join(process.cwd(),'/src/exercises/src/the_latex_file_to_send/pdf/exercices.pdf'))
+            this.pdfReady = false
+        }else{
+            res.status(HttpStatus.OK).json({
+                message: 'there not a pdf created'
+            })
+        }
+        
+        
+    }
+
+
 
 }
