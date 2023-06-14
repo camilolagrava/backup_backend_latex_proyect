@@ -19,7 +19,7 @@ export class LatexCreator{
     private separador1 = '\\['
     private separador2 = "\]\n"
 
-    private isLatexReady= false
+    //private isLatexReady= false
 
     async textBuild( exercises : ExerciseInterface[] ){
         let latex = this.head + '\n'

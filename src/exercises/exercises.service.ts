@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ExerciseInterface } from './interfaces/exercise.interface';
 import { ExerciseDTO } from './dto/exercise.dto';
 import { ExerciseFindDTO } from './dto/exercise.find.dto';
+import { ExerciseProducer } from './src/exercise.producer';
 
 @Injectable()
 export class ExercisesService {
@@ -52,5 +53,34 @@ export class ExercisesService {
         if(!exercises) throw new HttpException('EXERCISE_NO_FOUND', 404)
         return  exercises
     }
+
+    async getDev(): Promise<ExerciseInterface[]> {
+        const exercises = await this.exerciseModel.find({type: 0})
+        if(!exercises) throw new HttpException('EXERCISE_NO_FOUND', 404)
+        return exercises
+    }
+
+    async getIntg(): Promise<ExerciseInterface[]> {
+        const exercises = await this.exerciseModel.find({type: 1})
+        if(!exercises) throw new HttpException('EXERCISE_NO_FOUND', 404)
+        return exercises
+    }
+
+    async filldB(n : number):Promise<ExerciseInterface[]>{
+        let arr_js = []
+        const mo = new ExerciseProducer
+        for(var i=0;  i <n; i ++){
+            try {
+                arr_js.push( await this.addExercise(mo.saver(this.getRandomArbitrary(1,6),this.getRandomArbitrary(0,2))))
+              } catch (error) {
+                console.log("uno no se pudo")
+              }
+        }
+        return arr_js
+    }
+
+    private getRandomArbitrary(min, max) {
+        return Math.floor(Math.random() * (max - min) + min);
+      }
 
 }

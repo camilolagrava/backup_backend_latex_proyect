@@ -8,6 +8,9 @@ import { ExerciceUpdate } from './dto/exercise.update.dto';
 import { LatexCreator } from './src/latex.creator';
 import { join } from 'path';
 import { JwtAuthGuard } from 'src/auth/jwt.guards/jwt.auth-guard';
+import { ExerciseProducer } from './src/exercise.producer';
+import { log } from 'console';
+import { FillNumberDTO } from './dto/fill.numer.dto';
 
 
 
@@ -17,7 +20,7 @@ export class ExercisesController {
     private pdfReady = false
     constructor(private exercisesService : ExercisesService){}
 
-    @UseGuards(JwtAuthGuard)
+    //@UseGuards(JwtAuthGuard)
     @Post('/addExercise')
     async addExercise(@Res() res, @Body() exerciseDTO: ExerciseDTO){
         const exercise = await this.exercisesService.addExercise(exerciseDTO)
@@ -26,7 +29,7 @@ export class ExercisesController {
         })
     }
 
-    @UseGuards(JwtAuthGuard)
+    //@UseGuards(JwtAuthGuard)
     @Get('/')
     async allExercises(@Res() res){
         const exercises =  await this.exercisesService.getAllExercises();
@@ -35,7 +38,7 @@ export class ExercisesController {
         })
     }
 
-    @UseGuards(JwtAuthGuard)
+    //@UseGuards(JwtAuthGuard)
     @Delete('/deleteByID')
     async deleteByID(@Res() res, @Body() exerciseFindListDTO: ExerciseListFindDTO){
 
@@ -51,7 +54,7 @@ export class ExercisesController {
 
     }
 
-    @UseGuards(JwtAuthGuard)
+    //@UseGuards(JwtAuthGuard)
     @Post('/getByJson')
     async getByJson(@Res() res, @Body() exerciseFindDTO: ExerciseFindDTO){
         const exercises = await this.exercisesService.getExercisesByJson(exerciseFindDTO)
@@ -60,7 +63,7 @@ export class ExercisesController {
         })
     }
    
-    @UseGuards(JwtAuthGuard)
+    //@UseGuards(JwtAuthGuard)
     @Post('/getListByID')
     async getListByID(@Res() res, @Body() exerciseListFindDTO : ExerciseListFindDTO){
         const exercises = []
@@ -74,7 +77,7 @@ export class ExercisesController {
         })
     }
 
-    @UseGuards(JwtAuthGuard)
+    //@UseGuards(JwtAuthGuard)
     @Put('/updateByID')
     async updateByID(@Res() res, @Body() exerciceUpdate: ExerciceUpdate ){
         const exercise = await this.exercisesService.upDateExerciseById(exerciceUpdate.ids, exerciceUpdate.exercise)
@@ -83,7 +86,7 @@ export class ExercisesController {
         })
     }
 
-    @UseGuards(JwtAuthGuard)
+    //@UseGuards(JwtAuthGuard)
     @Post('/sentLatex')
     async sentLatex(@Res() res, @Body() exerciseListFindDTO : ExerciseListFindDTO)/*: Promise<Observable<Object>>*/{
         const exercises = []
@@ -93,10 +96,11 @@ export class ExercisesController {
         }
         const latex = new LatexCreator
         await latex.textBuild(exercises)
-        res.status(HttpStatus.OK).sendFile(join(process.cwd(),'/src/exercises/src/the_latex_file_to_send/latex_folder/exercices.tex'))
+        //res.status(HttpStatus.OK).sendFile(join(process.cwd(),'/src/exercises/src/the_latex_file_to_send/latex_folder/exercices.tex'))
+        res.downland(join(process.cwd(),'/src/exercises/src/the_latex_file_to_send/latex_folder/exercices.tex'),'exercises.tex')
     }
 
-    @UseGuards(JwtAuthGuard)
+    //@UseGuards(JwtAuthGuard)
     @Post('/createPdf')
     async createPdf(@Res() res, @Body() exerciseListFindDTO : ExerciseListFindDTO){
         const exercises = []
@@ -114,7 +118,7 @@ export class ExercisesController {
         
     }
 
-    @UseGuards(JwtAuthGuard)
+    //@UseGuards(JwtAuthGuard)
     @Get('/downloadPdf')
     async downloadPdf(@Res() res){
         if(this.pdfReady){
@@ -129,6 +133,30 @@ export class ExercisesController {
         
     }
 
+    //@UseGuards(JwtAuthGuard)
+    @Get('/allIntegrales')
+    async allIntegrales(@Res() res){
+        const exercises =  await this.exercisesService.getIntg()
+        res.status(HttpStatus.OK).json({
+            exercises
+        })
+    }
 
+    //@UseGuards(JwtAuthGuard)
+    @Get('/allDerivadas')
+    async allDerivadas(@Res() res){
+        const exercises =  await this.exercisesService.getDev()
+        res.status(HttpStatus.OK).json({
+            exercises
+        })
+    }    
 
+    //@UseGuards(JwtAuthGuard)
+    @Post('/fillDB')
+    async fillDB(@Res() res,  @Body() number: FillNumberDTO){
+        const exercises =  await this.exercisesService.filldB(number.n)
+        res.status(HttpStatus.OK).json({
+            exercises
+        })
+    } 
 }
